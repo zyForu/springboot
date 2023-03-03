@@ -8,18 +8,16 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.*;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.ApplicationContext;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
+import zyforu.demo.test.AProperties;
 
-import javax.annotation.Priority;
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Properties;
 
 /**
  * @author zy
@@ -27,6 +25,7 @@ import java.util.Properties;
  */
 @SpringBootApplication
 @Slf4j
+@EnableConfigurationProperties(AProperties.class)
 public class MyApplication implements CommandLineRunner {
     @Autowired
     private DataSource dataSource;
@@ -42,8 +41,11 @@ public class MyApplication implements CommandLineRunner {
     private JdbcProperties jdbcProperties;
 
     @Autowired
+    private AProperties aProperties;
+
+    /*@Autowired
     @Qualifier("secondJdbcTemplate")
-    private JdbcTemplate secondJdbcTemplate;
+    private JdbcTemplate secondJdbcTemplate;*/
 
     public static void main(String[] args) {
         SpringApplication.run(MyApplication.class);
@@ -61,8 +63,9 @@ public class MyApplication implements CommandLineRunner {
     @Primary
     public DataSource firstDataSource() {
         DataSourceProperties dataSourceProperties = firstDataSourceProperties();
-        log.info("first dataSource:{}", dataSourceProperties.getUrl());
-        return dataSourceProperties.initializeDataSourceBuilder().build();
+        DataSource dataSource = dataSourceProperties.initializeDataSourceBuilder().build();
+        log.info("first dataSource:{},value:{}", dataSourceProperties.getUrl(), dataSource);
+        return dataSource;
     }
 
 
@@ -75,8 +78,9 @@ public class MyApplication implements CommandLineRunner {
     @Bean
     public DataSource secondDataSource() {
         DataSourceProperties dataSourceProperties = secondDataSourceProperties();
-        log.info("second dataSource:{}", dataSourceProperties.getUrl());
-        return dataSourceProperties.initializeDataSourceBuilder().build();
+        DataSource datasource = dataSourceProperties.initializeDataSourceBuilder().build();
+        log.info("second dataSource:{},value:{}", dataSourceProperties.getUrl(), datasource);
+        return datasource;
     }
 
 
@@ -87,10 +91,10 @@ public class MyApplication implements CommandLineRunner {
         log.info("connection:{}", connection);
     }
 
-    public void showJdbcTemplate() {
+    /*public void showJdbcTemplate() {
         log.info("jdbcTemplate:{}", jdbcTemplate);
         log.info("jdbcTemplate2:{}", secondJdbcTemplate);
-    }
+    }*/
 
 
     public void selectBySecondDataSource() throws SQLException {
@@ -105,9 +109,8 @@ public class MyApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         showdataSource();
-        showJdbcTemplate();
         log.info("select for book:{}", jdbcTemplate.queryForList("select * from book"));
-
+        log.info(aProperties.toString());
        //selectBySecondDataSource();
     }
 }
