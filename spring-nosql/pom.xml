@@ -16,6 +16,7 @@
     <modules>
         <module>mongo</module>
         <module>redis</module>
+        <module>spring-cache</module>
     </modules>
 
 
